@@ -25,6 +25,9 @@ class App
     end
 
     lines.each do |line|
+			puts '_________BEGIN_______________'
+			pp line
+			puts '_________END_______________'
       msg = line[:msg]
       next unless msg.start_with?(PREFIX)
       Writer.instance.write([line[:ts], msg[PREFIX_LENGTH..-1]].join(' ').strip) # WRITER_LIB
