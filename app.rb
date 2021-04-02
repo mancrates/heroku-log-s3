@@ -44,9 +44,9 @@ class App
 	def write_canonical(line)
 		begin
 			msg = line[:msg]
-			matched = msg.match(/^(?<request_id>\[.+\])\s+(?<everything_else>.+)$/)
+			matched = msg.match(/^(?<request_id>\[.+?\])\s+(?<everything_else>.+)$/)
 			log_line = JSON.load(matched[:everything_else])
-			if log_line.key?(:user_id) || log_line.key?('user_id')
+			if log_line.key?('user_id')
 			  Writer.instance.write(log_line.to_json.strip) # WRITER_LIB
 			end
 		rescue => e
