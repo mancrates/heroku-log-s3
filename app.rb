@@ -28,10 +28,9 @@ class App
 			puts '_________BEGIN_______________'
 			pp line
 			puts '_________END_______________'
-			next unless canonical?(line)
       msg = line[:msg]
       next unless msg.start_with?(PREFIX)
-			Writer.instance.write(line.to_json.strip) # WRITER_LIB
+			write_canonical(line)
     end
 
   rescue Exception
@@ -42,11 +41,16 @@ class App
     return [200, { 'Content-Length' => '0' }, []]
   end
 
-	def canonical?(line)
+	def write_canonical(line)
 		begin
-			JSON.load(line[:msg]).key?(:user_id) || JSON.load(line[:msg]).key?('user_id')
-		rescue
-			false
+			msg = line[:msg]
+			matched = msg.match(/^(?<request_id>\[.+\])\s+(?<everything_else>.+)$/)
+			log_line = JSON.load(matched[:everything_else])
+			if log_line.key?(:user_id) || log_line.key?('user_id')
+			  Writer.instance.write(log_line.to_json.strip) # WRITER_LIB
+			end
+		rescue => e
+			@logger.error e
 		end
 	end
 end
