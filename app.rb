@@ -28,6 +28,7 @@ class App
 			puts '_________BEGIN_______________'
 			pp line
 			puts '_________END_______________'
+			next unless canonical?(line)
       msg = line[:msg]
       next unless msg.start_with?(PREFIX)
 			Writer.instance.write(line.to_json.strip) # WRITER_LIB
@@ -41,4 +42,11 @@ class App
     return [200, { 'Content-Length' => '0' }, []]
   end
 
+	def canonical?(line)
+		begin
+			JSON.load(line[:msg]).key?(:user_id) || JSON.load(line[:msg]).key?('user_id')
+		rescue
+			false
+		end
+	end
 end
