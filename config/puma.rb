@@ -1,8 +1,15 @@
-workers_count = Integer(ENV.fetch("WEB_CONCURRENCY", 1))
-workers(workers_count)
+require 'fileutils'
 
-threads_count = Integer(ENV.fetch("WEB_MAX_THREADS", 25))
-threads(threads_count, threads_count)
+workers Integer(ENV["WEB_CONCURRENCY"] || 2)
+threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 4)
+threads threads_count, threads_count
 
-port ENV.fetch("PORT", 9292)
-environment ENV.fetch("RACK_ENV", "development")
+rackup      DefaultRackup
+bind        "unix:///tmp/nginx.socket"
+environment ENV['RACK_ENV'] || 'development'
+
+preload_app!
+
+on_worker_fork do
+  FileUtils.touch('/tmp/app-initialized')
+end
